@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "traffic-snapshot"
+version = "1.0.0"
+description = "Lokale, tijdelijke verkeersanalyse op basis van videobeelden (Windows-desktopapplicatie)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PySide6>=6.6",
+    "numpy>=1.26",
+    "opencv-python-headless>=4.8",
+    "matplotlib>=3.8",
+    "onnxruntime-directml>=1.17; sys_platform == 'win32'",
+    "onnxruntime>=1.17; sys_platform != 'win32'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5", "pyinstaller>=6.5"]
+
+[project.gui-scripts]
+traffic-snapshot = "traffic_snapshot.app:main"
+
+[tool.setuptools.packages.find]
+include = ["traffic_snapshot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "B008", "B905"]

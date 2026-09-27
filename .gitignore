@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+# Detection models are downloaded by scripts/fetch_models.py (verified by SHA-256)
+models/*.onnx

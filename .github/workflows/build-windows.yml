@@ -1,0 +1,47 @@
+name: Build Windows
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libfontconfig1 libdbus-1-3
+      - run: pip install -r requirements-dev.txt
+      - run: python scripts/fetch_models.py
+      - run: ruff check traffic_snapshot tests
+      - run: pytest
+        env: { QT_QPA_PLATFORM: offscreen }
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements-dev.txt
+      - run: python scripts/fetch_models.py
+      - run: pytest
+        env: { QT_QPA_PLATFORM: offscreen }
+      - run: pyinstaller packaging/traffic_snapshot.spec --noconfirm --distpath dist --workpath build
+      - name: Smoke test frozen build
+        shell: pwsh
+        run: |
+          if (-not (Test-Path dist/TrafficSnapshot/TrafficSnapshot.exe)) { throw "exe ontbreekt" }
+          if (-not (Test-Path dist/TrafficSnapshot/_internal/models/yolox_s.onnx)) { throw "model ontbreekt" }
+      - name: Installer (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" packaging\installer.iss
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TrafficSnapshot-Windows
+          path: |
+            dist/TrafficSnapshot-Setup-*.exe

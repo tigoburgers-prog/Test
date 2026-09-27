@@ -1,0 +1,9 @@
+# Runtime dependencies (see pyproject.toml). On Windows the DirectML build of
+# ONNX Runtime enables GPU acceleration on any DirectX 12 capable GPU and
+# falls back to the CPU automatically.
+PySide6>=6.6
+numpy>=1.26
+opencv-python-headless>=4.8
+matplotlib>=3.8
+onnxruntime-directml>=1.17; sys_platform == "win32"
+onnxruntime>=1.17; sys_platform != "win32"
